@@ -10,4 +10,13 @@ const database = new Sequelize(
     }
 )
 
+require("../models/Cliente")
+require("../models/Pedido")
+require("../models/PedidoPrato")    
+require("../models/Prato")
+
+database.sync()
+
 module.exports = database
+
+
