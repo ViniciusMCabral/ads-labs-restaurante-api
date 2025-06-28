@@ -36,7 +36,9 @@ async function clientesComMaisPedidos() {
         include: [{ model: Pedido, as: 'pedidos' }] 
     });
 
-    const resultado = clientes.map(cliente => ({
+    const clientesComPedidos = clientes.filter(cliente => (cliente.pedidos || []).length > 0);
+
+    const resultado = clientesComPedidos.map(cliente => ({
         id: cliente.id,
         nome: cliente.nome,
         totalPedidos: (cliente.pedidos || []).length 
@@ -78,7 +80,9 @@ async function clientesComMaisGastos() {
         };
     });
 
-    return resultado
+    const clientesComGastos = resultado.filter(c => c.totalGasto > 0);
+
+    return clientesComGastos
         .sort((a, b) => b.totalGasto - a.totalGasto)
         .slice(0, 5);
 }
