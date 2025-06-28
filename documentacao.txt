@@ -1,0 +1,117 @@
+------------------
+Cliente          
+------------------
+
+POST /api/clientes : Cria um novo cliente
+{
+    "nome": "string",       
+    "email": "string",      
+    "cpf": "string"     
+}
+- Retorna o cliente criado com seu ID (201 Created).
+- Todos os campos são obrigatórios.
+- "cpf" deve ter formato XXX.XXX.XXX-XX (Não é obrigatório uso de '.' ou '-').
+
+GET /api/clientes : Lista todos os clientes
+- Retorna 404 se não existir nenhum cliente.
+- Retorna lista de clientes no corpo (200 OK).
+
+PUT /api/clientes/{id} : Atualiza o cliente pelo ID
+{
+    "nome": "string",       
+    "email": "string",      
+    "cpf": "string"
+}
+- Atualiza todos os campos do cliente.
+- Retorna 200 OK com os dados atualizados.
+- Retorna 404 se o cliente não existir.
+
+DELETE /api/clientes/{id} : Remove o cliente pelo ID
+- Remove o cliente definitivamente.
+- Retorna 200 OK se sucesso.
+- Retorna 404 se o cliente não existir.
+
+GET /api/clientes/com-mais-pedidos : Lista os 5 clientes com mais pedidos
+- Clientes devem ter pelo menos 1 pedido.
+- Retorna lista ordenada pela quantidade de pedidos (200 OK).
+
+GET /api/clientes/com-mais-gastos : Lista os 5 clientes com mais gastos
+- Clientes devem ter pelo menos 1 pedido.
+- Retorna lista ordenada pelo valor gasto total (200 OK).
+
+------------------
+Prato    
+------------------
+
+POST /api/pratos : Cria um novo prato
+{
+    "nome": "string",       
+    "preco": "number"          
+}
+- Retorna o prato criado com seu ID (201 Created).
+- Todos os campos são obrigatórios.
+- "preco" deve ser um número positivo.
+
+GET /api/pratos : Lista todos os pratos
+- Retorna 404 se não existir nenhum prato.
+- Retorna lista de pratos no corpo (200 OK).
+
+PUT /api/pratos/{id} : Atualiza o prato pelo ID
+{
+    "nome": "string",       
+    "preco": "number"    
+}
+- Atualiza todos os campos do prato.
+- Retorna 200 OK com os dados atualizados.
+- Retorna 404 se o prato não existir.
+
+DELETE /api/pratos/{id} : Remove o prato pelo ID
+- Remove o prato definitivamente.
+- Retorna 200 OK se sucesso.
+- Retorna 404 se o prato não existir.
+
+GET /api/pratos/com-mais-pedidos : Lista os pratos ordenados pela quantidade de pedidos
+- Retorna lista ordenada pela quantidade de pedidos (200 OK).
+- Retorna 404 se não existir nenhum pedido.
+
+------------------
+Pedido   
+------------------
+
+POST /api/pedidos : Cria um novo pedido
+{
+    "clienteId": "string",
+    "pratos": [
+        {
+            "pratoId": "string",
+            "quantidade": "number"
+        }
+    ]
+}
+- Retorna o pedido criado com seu ID (201 Created).
+- "clienteId" deve ser um ID válido de cliente existente.
+- "pratos" deve conter pelo menos um item.
+- "quantidade" deve ser um número inteiro positivo.
+
+GET /api/pedidos : Lista todos os pedidos
+- Retorna 404 se não existir nenhum pedido.
+- Retorna lista de pedidos no corpo (200 OK).
+
+PUT /api/pedidos/{id} : Atualiza o pedido pelo ID
+{
+    "clienteId": "string",
+    "pratos": [
+        {
+            "pratoId": "string",
+            "quantidade": "number"
+        }
+    ]    
+}
+- Atualiza todos os campos do pedido.
+- Retorna 200 OK com os dados atualizados.
+- Retorna 404 se o pedido não existir.
+
+DELETE /api/pedidos/{id} : Remove o pedido pelo ID
+- Remove o pedido definitivamente.
+- Retorna 200 OK se sucesso.
+- Retorna 404 se o pedido não existir.
