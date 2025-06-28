@@ -1,6 +1,6 @@
 const express = require("express");
 const controller = require("../controllers/PratoController");
-const middlewares = require("../middlewares/Middlewares");
+const middlewares = require("../middlewares/middlewares");
 
 const router = express.Router();
 

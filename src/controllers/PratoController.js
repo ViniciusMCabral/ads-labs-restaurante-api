@@ -26,15 +26,15 @@ async function listar(req, res) {
 async function atualizar(req, res) {
     try {
         const { id } = req.params;
-        const pratoEditado = await service.atualizar(id, req.body);
+        const pratoAtualizado = await service.atualizar(id, req.body);
 
-        if (!pratoEditado) {
+        if (!pratoAtualizado) {
             return res.status(404).json({ message: "Prato não encontrado" });
         }
 
         return res.json({
             message: "Prato atualizado",
-            prato: pratoEditado
+            prato: pratoAtualizado
         });
     } catch (error) {
         console.error(error);
@@ -45,9 +45,9 @@ async function atualizar(req, res) {
 async function remover(req, res) {
     try {
         const { id } = req.params;
-        const foiRemovido = await service.remover(id);
+        const pratoRemovido = await service.remover(id);
 
-        if (!foiRemovido) {
+        if (!pratoRemovido) {
             return res.status(404).json({ message: "Prato não encontrado" });
         }
 
@@ -68,4 +68,4 @@ async function pratosComMaisPedidos(req, res) {
     }
 }
 
-module.exports = { listar, criar, atualizar, remover, pratosComMaisPedidos };
+module.exports = { criar, listar, atualizar, remover, pratosComMaisPedidos };

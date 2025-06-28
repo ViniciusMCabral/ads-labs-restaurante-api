@@ -46,7 +46,4 @@ function checkNomePrato(req, res, next) {
     return next();
 }
 
-module.exports = { 
-    checkCPF, 
-    checkNomePrato 
-};
+module.exports = { checkCPF, checkNomePrato };

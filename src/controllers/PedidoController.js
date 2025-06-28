@@ -27,15 +27,15 @@ async function listar(req, res) {
 async function atualizar(req, res) {
     try {
         const { id } = req.params;
-        const pedidoEditado = await service.atualizar(id, req.body);
+        const pedidoAtualizado  = await service.atualizar(id, req.body);
 
-        if (!pedidoEditado) {
+        if (!pedidoAtualizado) {
             return res.status(404).json({ message: "Pedido não encontrado" });
         }
 
         return res.json({
             message: "Pedido atualizado",
-            pedido: pedidoEditado
+            pedido: pedidoAtualizado
         });
     } catch (error) {
         console.error(error);
@@ -46,9 +46,9 @@ async function atualizar(req, res) {
 async function remover(req, res) {
     try {
         const { id } = req.params;
-        const foiRemovido = await service.remover(id);
+        const pedidoRemovido = await service.remover(id);
 
-        if (!foiRemovido) {
+        if (!pedidoRemovido) {
             return res.status(404).json({ message: "Pedido não encontrado" });
         }
 

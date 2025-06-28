@@ -27,15 +27,15 @@ async function listar(req, res) {
 async function atualizar(req, res) {
     try {
         const { id } = req.params;
-        const clienteEditado = await service.atualizar(id, req.body);
+        const clienteAtualizado = await service.atualizar(id, req.body);
 
-        if (!clienteEditado) {           
+        if (!clienteAtualizado) {
             return res.status(404).json({ message: "Cliente não encontrado" });
         }
 
         return res.json({
             message: "Cliente atualizado",
-            cliente: clienteEditado
+            cliente: clienteAtualizado
         });
     } catch (error) {
         console.error(error);
@@ -46,9 +46,9 @@ async function atualizar(req, res) {
 async function remover(req, res) {
     try {
         const { id } = req.params;
-        const foiRemovido = await service.remover(id);
+        const clienteRemovido = await service.remover(id);
 
-        if (!foiRemovido) {
+        if (!clienteRemovido) {
             return res.status(404).json({ message: "Cliente não encontrado" });
         }
 
@@ -79,4 +79,4 @@ async function clientesComMaisGastos(req, res) {
     }
 }
 
-module.exports = { listar, criar, atualizar, remover, clientesComMaisPedidos, clientesComMaisGastos };
+module.exports = { criar, listar, atualizar, remover, clientesComMaisPedidos, clientesComMaisGastos };
