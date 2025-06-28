@@ -1,68 +1,71 @@
 const service = require("../services/PratoService");
 
-function criar(req, res) {
-    service.criar(req.body)
-        .then((pratoCriado) => {
-            return res.status(201).send({
-                message: "Novo prato criado",
-                prato: pratoCriado
-            })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
+async function criar(req, res) {
+    try {
+        const pratoCriado = await service.criar(req.body);
+        return res.status(201).json({
+            message: "Novo prato criado",
+            prato: pratoCriado
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function listar(req, res) {
-    service.listar(req.query)
-        .then((pratos) => {
-            return res.send({ dados: pratos })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
-        });
+async function listar(req, res) {
+    try {
+        const pratos = await service.listar(req.query);
+        return res.json({ dados: pratos });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function atualizar(req, res) {
-    service.atualizar(req.params.id, req.body)
-        .then((pratoEditado) => {
-            if (!pratoEditado)
-                return res.status(404).send({ message: "Prato não encontrado" })
+async function atualizar(req, res) {
+    try {
+        const { id } = req.params;
+        const pratoEditado = await service.atualizar(id, req.body);
 
-            return res.send({
-                message: "Prato atualizado",
-                prato: pratoEditado
-            })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
+        if (!pratoEditado) {
+            return res.status(404).json({ message: "Prato não encontrado" });
+        }
+
+        return res.json({
+            message: "Prato atualizado",
+            prato: pratoEditado
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function remover(req, res) {
-    service.remover(req.params.id)
-        .then((pratoRemovido) => {
-            if (!pratoRemovido)
-                return res.status(404).send({ message: "Prato não encontrado" })
+async function remover(req, res) {
+    try {
+        const { id } = req.params;
+        const foiRemovido = await service.remover(id);
 
-            return res.send({
-                message: "Prato removido",
-                prato: pratoRemovido
-            })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
-        });
+        if (!foiRemovido) {
+            return res.status(404).json({ message: "Prato não encontrado" });
+        }
+
+        return res.status(200).json({ message: "Prato removido com sucesso" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function pratosComMaisPedidos(req, res) {
-    service.pratosComMaisPedidos()
-        .then((pratos) => {
-            return res.send({ dados: pratos })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
-        });
+async function pratosComMaisPedidos(req, res) {
+    try {
+        const pratos = await service.pratosComMaisPedidos();
+        return res.json({ dados: pratos });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-module.exports = { listar, criar, atualizar, remover, pratosComMaisPedidos }
+module.exports = { listar, criar, atualizar, remover, pratosComMaisPedidos };

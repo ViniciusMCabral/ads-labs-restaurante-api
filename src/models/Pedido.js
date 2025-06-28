@@ -1,27 +1,34 @@
-const database = require("../database/database");
 const { DataTypes } = require("sequelize");
-const Cliente = require('./Cliente');
 
-const Pedido = database.define("Pedido", {
+module.exports = (sequelize) => {
+  const Pedido = sequelize.define("Pedido", {
     id: { 
-        type: DataTypes.INTEGER, 
-        primaryKey: true, 
-        autoIncrement: true 
+      type: DataTypes.INTEGER, 
+      primaryKey: true, 
+      autoIncrement: true 
     },
     data: { 
-        type: DataTypes.DATE, 
-        allowNull: false, 
-        defaultValue: DataTypes.NOW 
+      type: DataTypes.DATE, 
+      allowNull: false, 
+      defaultValue: DataTypes.NOW 
     },
-}, {
-  tableName: "pedidos",
-});
+  }, {
+    tableName: "pedidos",
+    timestamps: false
+  });
 
-Cliente.hasMany(Pedido, { 
-    foreignKey: "clienteId" 
-});
-Pedido.belongsTo(Cliente, { 
-    foreignKey: "clienteId" 
-});
+  Pedido.associate = (models) => {
+    Pedido.belongsTo(models.Cliente, { 
+      foreignKey: "clienteId",
+      as: 'cliente'
+    });
 
-module.exports = Pedido;
+    Pedido.belongsToMany(models.Prato, {
+      through: models.PedidoPrato,
+      foreignKey: "pedidoId",  
+      as: 'pratos'
+    });
+  };
+
+  return Pedido;
+}; 

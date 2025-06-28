@@ -1,58 +1,62 @@
 const service = require("../services/PedidoService");
 
-function criar(req, res) {
-    service.criar(req.body)
-        .then((pedidoCriado) => {
-            return res.status(201).send({
-                message: "Novo pedido criado",
-                pedido: pedidoCriado
-            });
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
+async function criar(req, res) {
+    try {
+        const pedidoCriado = await service.criar(req.body);
+
+        return res.status(201).json({
+            message: "Novo pedido criado",
+            pedido: pedidoCriado
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function listar(req, res) {
-    service.listar()
-        .then((pedidos) => {
-            return res.send({ dados: pedidos });
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
-        });
+async function listar(req, res) {
+    try {
+        const pedidos = await service.listar();
+        return res.json({ dados: pedidos });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function atualizar(req, res) {
-    service.atualizar(req.params.id, req.body)
-        .then((pedidoEditado) => {
-            if (!pedidoEditado)
-                return res.status(404).send({ message: "Pedido não encontrado" });
+async function atualizar(req, res) {
+    try {
+        const { id } = req.params;
+        const pedidoEditado = await service.atualizar(id, req.body);
 
-            return res.send({
-                message: "Pedido atualizado",
-                pedido: pedidoEditado
-            });
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
+        if (!pedidoEditado) {
+            return res.status(404).json({ message: "Pedido não encontrado" });
+        }
+
+        return res.json({
+            message: "Pedido atualizado",
+            pedido: pedidoEditado
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function remover(req, res) {
-    service.remover(req.params.id)
-        .then((pedidoRemovido) => {
-            if (!pedidoRemovido)
-                return res.status(404).send({ message: "Pedido não encontrado" });
+async function remover(req, res) {
+    try {
+        const { id } = req.params;
+        const foiRemovido = await service.remover(id);
 
-            return res.send({
-                message: "Pedido removido",
-                pedido: pedidoRemovido
-            });
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
-        });
+        if (!foiRemovido) {
+            return res.status(404).json({ message: "Pedido não encontrado" });
+        }
+
+        return res.status(200).json({ message: "Pedido removido com sucesso" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
 module.exports = { criar, listar, atualizar, remover };

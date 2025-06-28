@@ -1,6 +1,4 @@
-const Cliente = require("../models/Cliente");
-const Pedido = require("../models/Pedido");
-const Prato = require("../models/Prato");
+const { Cliente, Pedido, Prato } = require("../database/database");
 
 async function criar(dados) {
     const cliente = await Cliente.create(dados);
@@ -15,7 +13,7 @@ async function atualizar(id, dados) {
     const cliente = await Cliente.findByPk(id);
     
     if (!cliente) {
-        return null;    
+        return null;
     }
 
     await cliente.update(dados);
@@ -35,13 +33,13 @@ async function remover(id) {
 
 async function clientesComMaisPedidos() {
     const clientes = await Cliente.findAll({
-        include: [{ model: Pedido }]
+        include: [{ model: Pedido, as: 'pedidos' }] 
     });
 
     const resultado = clientes.map(cliente => ({
         id: cliente.id,
         nome: cliente.nome,
-        totalPedidos: cliente.Pedidos.length
+        totalPedidos: cliente.pedidos.length 
     }));
 
     return resultado
@@ -53,8 +51,10 @@ async function clientesComMaisGastos() {
     const clientes = await Cliente.findAll({
         include: [{
             model: Pedido,
+            as: "pedidos", 
             include: [{
                 model: Prato,
+                as: "pratos",
                 through: { attributes: ["quantidade", "preco"] }
             }]
         }]
@@ -63,8 +63,8 @@ async function clientesComMaisGastos() {
     const resultado = clientes.map(cliente => {
         let totalGasto = 0;
 
-        cliente.Pedidos.forEach(pedido => {
-            pedido.Pratos.forEach(prato => {
+        cliente.pedidos.forEach(pedido => {
+            pedido.pratos.forEach(prato => {
                 totalGasto += prato.PedidoPrato.preco * prato.PedidoPrato.quantidade;
             });
         });

@@ -1,42 +1,52 @@
-const Pedido = require("../models/Pedido");
-const Cliente = require("../models/Cliente");
-const Prato = require("../models/Prato");
-const PedidoPrato = require("../models/PedidoPrato");
-const { Sequelize } = require("sequelize");
+const { sequelize, Pedido, Cliente, Prato, PedidoPrato } = require("../database/database");
 
 async function criar(dados) {
-    const { clienteId, itens } = dados;
+    const t = await sequelize.transaction(); 
 
-    const cliente = await Cliente.findByPk(clienteId);
-    if (!cliente) {
-        return null;
-    }
+    try {
+        const { clienteId, pratos: itens } = dados;
 
-    const pedido = await Pedido.create({ clienteId });
-
-    for (const item of itens) {
-        const prato = await Prato.findByPk(item.pratoId);
-        if (!prato) {
-            return null;
+        const cliente = await Cliente.findByPk(clienteId, { transaction: t });
+        if (!cliente) {
+            throw new Error("Cliente não encontrado");
         }
 
-        await PedidoPrato.create({
-            pedidoId: pedido.id,
-            pratoId: prato.id,
-            quantidade: item.quantidade || 1,
-            preco: prato.preco,
-        });
-    }
+        const pedido = await Pedido.create({ clienteId }, { transaction: t });
 
-    return pedido;
+        for (const item of itens) {
+            const prato = await Prato.findByPk(item.pratoId, { transaction: t });
+            if (!prato) {
+                throw new Error(`Prato com ID ${item.pratoId} não encontrado`);
+            }
+
+            await pedido.addPrato(prato, { 
+                through: {
+                    quantidade: item.quantidade || 1,
+                    preco: prato.preco 
+                },
+                transaction: t 
+            });
+        }
+
+        await t.commit();
+
+        return await Pedido.findByPk(pedido.id, {
+            include: [{ model: Cliente, as: 'cliente' }, { model: Prato, as: 'pratos' }]
+        });
+
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
 }
 
 async function listar() {
     return await Pedido.findAll({
         include: [
-            { model: Cliente, attributes: ['id', 'nome', 'cpf'] },
+            { model: Cliente, as: 'cliente', attributes: ['id', 'nome', 'cpf'] },
             { 
                 model: Prato,
+                as: 'pratos',
                 attributes: ['id', 'nome', 'preco'],
                 through: {
                     attributes: ['quantidade', 'preco']
@@ -47,59 +57,74 @@ async function listar() {
 }
 
 async function atualizar(id, novosDados) {
-    const pedido = await Pedido.findByPk(id);
+    const t = await sequelize.transaction();
 
-    if (!pedido) {
-        return null;
+    try {
+        const pedido = await Pedido.findByPk(id, { transaction: t });
+        if (!pedido) {
+            throw new Error("Pedido não encontrado");
+        }
+
+        const { clienteId, pratos: itens } = novosDados;
+
+        if (clienteId && pedido.clienteId !== clienteId) {
+             const cliente = await Cliente.findByPk(clienteId, { transaction: t });
+             if (!cliente) {
+                throw new Error("Cliente para atualização não encontrado");
+             }
+             pedido.clienteId = clienteId;
+             await pedido.save({ transaction: t });
+        }
+        
+        if (itens && Array.isArray(itens)) {
+            await pedido.setPratos([], { transaction: t });
+
+            for (const item of itens) {
+                const prato = await Prato.findByPk(item.pratoId, { transaction: t });
+                if (!prato) {
+                    throw new Error(`Prato com ID ${item.pratoId} não encontrado para atualização`);
+                }
+                await pedido.addPrato(prato, {
+                    through: {
+                        quantidade: item.quantidade || 1,
+                        preco: prato.preco
+                    },
+                    transaction: t
+                });
+            }
+        }
+        
+        await t.commit();
+        
+        return await Pedido.findByPk(id, {
+            include: [{ model: Cliente, as: 'cliente' }, { model: Prato, as: 'pratos' }]
+        });
+
+    } catch(error) {
+        await t.rollback();
+        throw error;
     }
+}
 
-    const { clienteId, itens } = novosDados;
+async function remover(id) {
 
-    if (clienteId) {
-        const cliente = await Cliente.findByPk(clienteId);
-
-        if (!cliente) {
+    const t = await sequelize.transaction();
+    try {
+        const pedido = await Pedido.findByPk(id, { transaction: t });
+        if (!pedido) {
+            await t.commit();
             return null;
         }
 
-        pedido.clienteId = clienteId;
+        await pedido.setPratos([], { transaction: t });
+        await pedido.destroy({ transaction: t });
+        
+        await t.commit();
+        return pedido; 
+    } catch(error) {
+        await t.rollback();
+        throw error;
     }
-
-    await pedido.save();
-
-    if (itens) {
-        await PedidoPrato.destroy({ where: { pedidoId: pedido.id } });
-
-        for (const item of itens) {
-            const prato = await Prato.findByPk(item.pratoId);
-
-            if (!prato) {
-                return null;
-            }
-            
-            await PedidoPrato.create({
-                pedidoId: pedido.id,
-                pratoId: prato.id,
-                quantidade: item.quantidade || 1,
-                preco: prato.preco
-            });
-        }
-    }
-
-    return pedido;
-}
-
-
-async function remover(id) {
-    const pedido = await Pedido.findByPk(id);
-
-    if (!pedido) {
-        return null;
-    }
-
-    await PedidoPrato.destroy({ where: { pedidoId: id } });
-    await pedido.destroy();
-    return pedido;
 }
 
 module.exports = { criar, listar, atualizar, remover };

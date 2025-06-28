@@ -1,79 +1,82 @@
-const service = require("../services/ClienteService")
+const service = require("../services/ClienteService");
 
-function criar(req, res) {
-    service.criar(req.body)
-        .then((clienteCriado) => {
-            return res.status(201).send({
-                message: "Novo cliente criado",
-                cliente: clienteCriado
-            })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
+async function criar(req, res) {
+    try {
+        const clienteCriado = await service.criar(req.body);
+
+        return res.status(201).json({
+            message: "Novo cliente criado",
+            cliente: clienteCriado
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function listar(req, res) {
-    service.listar(req.query)
-        .then((clientes) => {
-            return res.send({ dados: clientes })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error })
-        })
+async function listar(req, res) {
+    try {
+        const clientes = await service.listar(req.query);
+        return res.json({ dados: clientes }); 
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function atualizar(req, res) {
-    service.atualizar(req.params.id, req.body)
-        .then((clienteEditado) => {
-            console.log(clienteEditado)
-            if(!clienteEditado)
-                return res.send({ message: "Cliente não encontrado"})
+async function atualizar(req, res) {
+    try {
+        const { id } = req.params;
+        const clienteEditado = await service.atualizar(id, req.body);
 
-            return res.send({
-                message: "Cliente atualizado",
-                cliente: clienteEditado
-            })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error })
-        })
-}
+        if (!clienteEditado) {           
+            return res.status(404).json({ message: "Cliente não encontrado" });
+        }
 
-function remover(req, res) {
-    service.remover(req.params.id)
-        .then((clienteRemovido) => {
-            if(!clienteRemovido)
-                return res.send({ message: "Cliente não encontrado"})
-
-            return res.send({
-                message: "Cliente removido",
-                cliente: clienteRemovido
-            })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error })
-        })
-}
-
-function clientesComMaisPedidos(req, res) {
-    service.clientesComMaisPedidos()
-        .then((clientes) => {
-            return res.send({ dados: clientes })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
+        return res.json({
+            message: "Cliente atualizado",
+            cliente: clienteEditado
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-function clientesComMaisGastos(req, res) {
-    service.clientesComMaisGastos()
-        .then((clientes) => {
-            return res.send({ dados: clientes })
-        })
-        .catch((error) => {
-            return res.status(500).send({ message: error });
-        });
+async function remover(req, res) {
+    try {
+        const { id } = req.params;
+        const foiRemovido = await service.remover(id);
+
+        if (!foiRemovido) {
+            return res.status(404).json({ message: "Cliente não encontrado" });
+        }
+
+        return res.status(200).json({ message: "Cliente removido com sucesso" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-module.exports = { listar, criar, atualizar, remover, clientesComMaisPedidos, clientesComMaisGastos }
+async function clientesComMaisPedidos(req, res) {
+    try {
+        const clientes = await service.clientesComMaisPedidos();
+        return res.json({ dados: clientes });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+async function clientesComMaisGastos(req, res) {
+    try {
+        const clientes = await service.clientesComMaisGastos();
+        return res.json({ dados: clientes });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = { listar, criar, atualizar, remover, clientesComMaisPedidos, clientesComMaisGastos };

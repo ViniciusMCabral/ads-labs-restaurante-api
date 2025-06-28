@@ -1,5 +1,4 @@
-const Prato = require("../models/Prato");
-const Pedido = require("../models/Pedido");
+const { Prato, Pedido } = require("../database/database");
 
 async function criar(dados) {
     const prato = await Prato.create(dados);
@@ -32,16 +31,18 @@ async function remover(id) {
     return prato;
 }
 
-async function pratosOrdenadosPorQuantidade() {
+async function pratosOrdenadosPorVenda() {
     const pratos = await Prato.findAll({
         include: [{
             model: Pedido,
+            as: 'pedidos', 
+            attributes: [], 
             through: { attributes: ["quantidade"] }
         }]
     });
 
     const resultado = pratos.map(prato => {
-        const totalPedidos = prato.Pedidos.reduce((soma, pedido) => {
+        const totalVendido = prato.pedidos.reduce((soma, pedido) => {
             return soma + pedido.PedidoPrato.quantidade;
         }, 0);
 
@@ -49,11 +50,11 @@ async function pratosOrdenadosPorQuantidade() {
             id: prato.id,
             nome: prato.nome,
             preco: prato.preco,
-            totalPedidos
+            totalVendido
         };
     });
 
-    return resultado.sort((a, b) => b.totalPedidos - a.totalPedidos);
+    return resultado.sort((a, b) => b.totalVendido - a.totalVendido);
 }
 
-module.exports = { criar, listar, atualizar, remover, pratosOrdenadosPorQuantidade };
+module.exports = { criar, listar, atualizar, remover, pratosOrdenadosPorVenda };

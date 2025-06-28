@@ -1,22 +1,34 @@
-const Sequelize = require("sequelize")
+const Sequelize = require("sequelize");
+const fs = require('fs');
+const path = require('path'); 
 
-const database = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-        dialect: process.env.DB_DIALECT,
-        host: process.env.DB_HOST
-    }
-)
+const dbConfig = {
+    database: process.env.DB_NAME,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT
+};
 
-require("../models/Cliente")
-require("../models/Pedido")
-require("../models/PedidoPrato")    
-require("../models/Prato")
+const sequelize = new Sequelize(dbConfig);
 
-database.sync()
+const models = {};
+const modelsDir = path.join(__dirname, '../models');
 
-module.exports = database
+fs.readdirSync(modelsDir)
+  .filter(file => file.slice(-3) === '.js') 
+  .forEach(file => {
+    const modelDefinition = require(path.join(modelsDir, file));
+    const model = modelDefinition(sequelize);
+    models[model.name] = model;
+  });
 
+Object.values(models)
+  .filter(model => typeof model.associate === 'function')
+  .forEach(model => model.associate(models));
 
+sequelize.sync({ alter: true })
+  .then(() => console.log("Banco de dados e tabelas sincronizados com sucesso."))
+  .catch(err => console.error("Erro ao sincronizar o banco de dados:", err));
+
+module.exports = { sequelize, ...models };
