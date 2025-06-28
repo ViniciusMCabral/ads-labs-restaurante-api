@@ -39,7 +39,7 @@ async function clientesComMaisPedidos() {
     const resultado = clientes.map(cliente => ({
         id: cliente.id,
         nome: cliente.nome,
-        totalPedidos: cliente.pedidos.length 
+        totalPedidos: (cliente.pedidos || []).length 
     }));
 
     return resultado
@@ -64,8 +64,10 @@ async function clientesComMaisGastos() {
         let totalGasto = 0;
 
         cliente.pedidos.forEach(pedido => {
-            pedido.pratos.forEach(prato => {
-                totalGasto += prato.PedidoPrato.preco * prato.PedidoPrato.quantidade;
+            (pedido.pratos || []).forEach(prato => {
+                const preco = prato.PedidoPrato?.preco || 0;
+                const quantidade = prato.PedidoPrato?.quantidade || 0;
+                totalGasto += preco * quantidade;
             });
         });
 
@@ -80,5 +82,6 @@ async function clientesComMaisGastos() {
         .sort((a, b) => b.totalGasto - a.totalGasto)
         .slice(0, 5);
 }
+
 
 module.exports = { criar, listar, atualizar, remover, clientesComMaisPedidos, clientesComMaisGastos };

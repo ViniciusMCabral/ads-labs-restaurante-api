@@ -26,5 +26,11 @@ module.exports = (sequelize) => {
     timestamps: false
   });
 
+  Cliente.associate = (models) => {
+  Cliente.hasMany(models.Pedido, {
+    foreignKey: 'clienteId',
+    as: 'pedidos'
+  });
+};
   return Cliente;
 };

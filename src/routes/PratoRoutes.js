@@ -8,6 +8,6 @@ router.post("/", middlewares.checkNomePrato, controller.criar);
 router.get("/", controller.listar);
 router.put("/:id", middlewares.checkNomePrato, controller.atualizar);
 router.delete("/:id", controller.remover);
-router.get("/com-mais-pedidos", controller.pratosComMaisPedidos);
+router.get("/com-mais-pedidos", controller.pratosOrdenadosPorQuantidade);
 
 module.exports = router;

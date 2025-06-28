@@ -58,9 +58,9 @@ async function remover(req, res) {
     }
 }
 
-async function pratosComMaisPedidos(req, res) {
+async function pratosOrdenadosPorQuantidade(req, res) {
     try {
-        const pratos = await service.pratosComMaisPedidos();
+        const pratos = await service.pratosOrdenadosPorQuantidade();
         return res.json({ dados: pratos });
     } catch (error) {
         console.error(error);
@@ -68,4 +68,4 @@ async function pratosComMaisPedidos(req, res) {
     }
 }
 
-module.exports = { criar, listar, atualizar, remover, pratosComMaisPedidos };
+module.exports = { criar, listar, atualizar, remover, pratosOrdenadosPorQuantidade };

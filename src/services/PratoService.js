@@ -31,18 +31,18 @@ async function remover(id) {
     return prato;
 }
 
-async function pratosOrdenadosPorVenda() {
+async function pratosOrdenadosPorQuantidade() {
     const pratos = await Prato.findAll({
         include: [{
             model: Pedido,
             as: 'pedidos', 
-            attributes: [], 
+            attributes: ["id"], 
             through: { attributes: ["quantidade"] }
         }]
     });
 
     const resultado = pratos.map(prato => {
-        const totalVendido = prato.pedidos.reduce((soma, pedido) => {
+        const totalVendido = (prato.pedidos || []).reduce((soma, pedido) => {
             return soma + pedido.PedidoPrato.quantidade;
         }, 0);
 
@@ -57,4 +57,4 @@ async function pratosOrdenadosPorVenda() {
     return resultado.sort((a, b) => b.totalVendido - a.totalVendido);
 }
 
-module.exports = { criar, listar, atualizar, remover, pratosOrdenadosPorVenda };
+module.exports = { criar, listar, atualizar, remover, pratosOrdenadosPorQuantidade };
