@@ -62,7 +62,7 @@ async function atualizar(id, novosDados) {
     try {
         const pedido = await Pedido.findByPk(id, { transaction: t });
         if (!pedido) {
-            throw new Error("Pedido não encontrado");
+            return null;
         }
 
         const { clienteId, pratos: itens } = novosDados;
