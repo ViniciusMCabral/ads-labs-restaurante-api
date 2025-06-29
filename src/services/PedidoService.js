@@ -62,6 +62,7 @@ async function atualizar(id, novosDados) {
     try {
         const pedido = await Pedido.findByPk(id, { transaction: t });
         if (!pedido) {
+            await t.rollback();
             return null;
         }
 
@@ -70,6 +71,7 @@ async function atualizar(id, novosDados) {
         if (clienteId && pedido.clienteId !== clienteId) {
              const cliente = await Cliente.findByPk(clienteId, { transaction: t });
              if (!cliente) {
+                await t.rollback();
                 return null;
              }
              pedido.clienteId = clienteId;
@@ -82,6 +84,7 @@ async function atualizar(id, novosDados) {
             for (const item of itens) {
                 const prato = await Prato.findByPk(item.pratoId, { transaction: t });
                 if (!prato) {
+                    await t.rollback();
                     return null;
                 }
                 await pedido.addPrato(prato, {
