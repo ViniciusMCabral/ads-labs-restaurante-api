@@ -70,7 +70,7 @@ async function atualizar(id, novosDados) {
         if (clienteId && pedido.clienteId !== clienteId) {
              const cliente = await Cliente.findByPk(clienteId, { transaction: t });
              if (!cliente) {
-                throw new Error("Cliente para atualização não encontrado");
+                return null;
              }
              pedido.clienteId = clienteId;
              await pedido.save({ transaction: t });
@@ -82,7 +82,7 @@ async function atualizar(id, novosDados) {
             for (const item of itens) {
                 const prato = await Prato.findByPk(item.pratoId, { transaction: t });
                 if (!prato) {
-                    throw new Error(`Prato com ID ${item.pratoId} não encontrado para atualização`);
+                    return null;
                 }
                 await pedido.addPrato(prato, {
                     through: {
