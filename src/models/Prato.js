@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       allowNull: false 
     },
     preco: { 
-      type: DataTypes.FLOAT, 
+      type: DataTypes.DECIMAL(10, 2), 
       allowNull: false 
     }
   }, {

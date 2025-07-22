@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
       defaultValue: 1,
     },
     preco: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
     },
   }, {
