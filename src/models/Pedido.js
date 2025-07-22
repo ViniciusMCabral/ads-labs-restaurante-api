@@ -20,7 +20,9 @@ module.exports = (sequelize) => {
   Pedido.associate = (models) => {
     Pedido.belongsTo(models.Cliente, { 
       foreignKey: "clienteId",
-      as: 'cliente'
+      as: 'cliente',
+      onDelete: 'CASCADE',
+      hooks: true
     });
 
     Pedido.belongsToMany(models.Prato, {

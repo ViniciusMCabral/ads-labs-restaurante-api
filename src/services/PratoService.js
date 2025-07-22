@@ -1,4 +1,4 @@
-const { Prato, Pedido } = require("../database/database");
+const { sequelize, Prato, Pedido, PedidoPrato } = require("../database/database");
 
 async function criar(dados) {
     const prato = await Prato.create(dados);
@@ -21,13 +21,17 @@ async function atualizar(id, dados) {
 }
 
 async function remover(id) {
-    const prato = await Prato.findByPk(id);
+    const pratoEmUso = await PedidoPrato.findOne({ where: { pratoId: id } });
 
-    if (!prato) {
-        return null;
+    if (pratoEmUso) {
+        throw new Error("Este prato não pode ser removido, pois faz parte de um pedido já realizado.");
     }
 
-    await prato.destroy();
+    const prato = await Prato.findByPk(id);
+
+    if (prato) {
+        await prato.destroy();
+    }
     return prato;
 }
 
