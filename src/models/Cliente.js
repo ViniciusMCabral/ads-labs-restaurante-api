@@ -8,16 +8,16 @@ module.exports = (sequelize) => {
       autoIncrement: true
     },
     nome: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     email: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false,
       unique: true
     },
     cpf: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(11),
       allowNull: false,
       unique: true
     }
